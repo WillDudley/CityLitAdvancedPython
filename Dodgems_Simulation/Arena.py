@@ -80,10 +80,10 @@ class Arena:
 
         for dodgem in self.dodgems:
             if dodgem.alive:
-                if arena[dodgem.current_location[0], dodgem.current_location[1]] != 0:  # if a dodgem is already in the location...
-                    arena[dodgem.current_location[0], dodgem.current_location[1]] = -1  # just replace it with -1
+                if arena[dodgem.next_location[0], dodgem.next_location[1]] != 0:  # if a dodgem is already in the location...
+                    arena[dodgem.next_location[0], dodgem.next_location[1]] = -1  # just replace it with -1
                 else:
-                    arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
+                    arena[dodgem.next_location[0], dodgem.next_location[1]] = dodgem.dodgem_id
 
         print(arena)
         return arena
@@ -98,7 +98,7 @@ class Arena:
 
     def _check_collision_between_dodgems(self):
         # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
-        coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
+        coordinate_list = [tuple(dodgem.next_location) if dodgem.alive else None for dodgem in self.dodgems]
 
         for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
             # If the dodgem is where another dodgem is, damage it
