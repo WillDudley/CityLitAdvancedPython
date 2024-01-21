@@ -2,17 +2,21 @@ import numpy as np
 
 
 class Dodgem:
-    def __init__(self, hit_points, speed, pursuit_strategy, current_location, dodgem_id, arena_size):
+    def __init__(self, hit_points, policy, initial_location, dodgem_id, arena_size):
         self.hit_points = hit_points
-        self.speed = speed
-        self.pursuit_strategy = pursuit_strategy
+        self.policy = policy
         self.alive = True
-        self.current_location = current_location
+        self.current_location = initial_location
         self.dodgem_id = dodgem_id
         self.arena_size = arena_size
 
     def step(self):
-        self.current_location += np.array([1, 1])
+        if self.policy == "SE":
+            self.current_location += np.array([1, 1])
+        elif self.policy == "Random":
+            self.current_location += np.random.randint(low=-1, high=1, size=2)
+        else:
+            raise ValueError(f"Dodgem {self.dodgem_id}'s policy of '{self.policy}' not recognised!")
 
         # account for collision with wall
         for i in [0, 1]:

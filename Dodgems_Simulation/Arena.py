@@ -64,9 +64,8 @@ class Arena:
         assert 0 <= y_coordinate < self.arena_size, f"Initial y coordinate for dodgem {dodgem_id} out of bounds!"
 
         self.dodgems.append(Dodgem(hit_points=1,
-                                   speed=1,
-                                   pursuit_strategy=None,
-                                   current_location=np.array([x_coordinate, y_coordinate]),
+                                   policy="Random",
+                                   initial_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id,
                                    arena_size=self.arena_size))
         self.alive_dodgems.append(dodgem_id)
