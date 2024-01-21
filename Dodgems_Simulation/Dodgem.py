@@ -19,12 +19,3 @@ class Dodgem:
             self.alive = False
             self.current_location = None
             print(f"Dodgem {self.dodgem_id} destroyed!")
-
-    def _check_collision(self):
-        pass
-
-    def _update_velocity(self):
-        pass
-
-    def _check_alive(self):
-        pass
