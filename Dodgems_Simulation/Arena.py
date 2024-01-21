@@ -117,7 +117,7 @@ def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
             if i != j:
                 if seq[i] == seq[j]:
                     duplicates.append((i, seq[i]))
-    return duplicates
+    return set(duplicates)  # when >2 dodgems are destroyed simultaneously, duplicates of this list are made
 
 
 def test_alive_dodgems_sync_with_arena_render(arena: np.array, dodgems_list: list[Dodgem]):
