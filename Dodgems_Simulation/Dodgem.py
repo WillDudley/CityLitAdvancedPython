@@ -27,6 +27,7 @@ class Dodgem:
 
     def decrement_hp(self):
         self.hit_points -= 1
+        print(f"Dodgem {self.dodgem_id} hit! Remaining HP: {self.hit_points}")
         if self.hit_points <= 0:
             self.alive = False
             self.current_location = None
