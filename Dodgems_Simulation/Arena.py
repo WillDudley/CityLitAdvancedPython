@@ -4,9 +4,10 @@ from collections import defaultdict
 
 
 class Arena:
-    def __init__(self, arena_size, n_dodgems, time_limit=10_000, render=True):
+    def __init__(self, arena_size, n_dodgems, dodgem_policies, time_limit=10_000, render=True):
         self.arena_size = arena_size
         self.n_dodgems = n_dodgems
+        self.dodgem_policies = dodgem_policies
         self.time_limit = time_limit
         self.render = render
 
@@ -64,7 +65,7 @@ class Arena:
         assert 0 <= y_coordinate < self.arena_size, f"Initial y coordinate for dodgem {dodgem_id} out of bounds!"
 
         self.dodgems.append(Dodgem(hit_points=1,
-                                   policy="Random",
+                                   policy=self.dodgem_policies[dodgem_id-1],
                                    initial_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id,
                                    arena_size=self.arena_size))
