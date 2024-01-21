@@ -27,7 +27,7 @@ class Arena:
         for dodgem in self.dodgems:
             if dodgem.alive:
 
-                dodgem.step()
+                dodgem.step(self.dodgems)
 
         self._check_collision_between_dodgems()
 

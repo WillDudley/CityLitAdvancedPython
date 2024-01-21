@@ -10,11 +10,15 @@ class Dodgem:
         self.dodgem_id = dodgem_id
         self.arena_size = arena_size
 
-    def step(self):
+    def step(self, all_dodgems):
         if self.policy == "SE":
             self.current_location += np.array([1, 1])
         elif self.policy == "Random":
             self.current_location += np.random.randint(low=-1, high=1, size=2)
+        elif self.policy == "Pursuit":
+            pass
+        elif self.policy == "Escape":
+            pass
         else:
             raise ValueError(f"Dodgem {self.dodgem_id}'s policy of '{self.policy}' not recognised!")
 
