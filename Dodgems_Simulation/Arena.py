@@ -2,6 +2,7 @@ import numpy as np
 from Dodgem import Dodgem
 from collections import defaultdict
 
+
 class Arena:
     def __init__(self, arena_size, n_dodgems, time_limit):
         self.arena_size = arena_size
@@ -14,8 +15,7 @@ class Arena:
         self.time_step = 0
 
         for i in list(range(n_dodgems)):
-            self.add_dodgem(i+1)
-
+            self.add_dodgem(i + 1)
 
     def add_dodgem(self, dodgem_id):
         """
@@ -41,7 +41,8 @@ class Arena:
                                    current_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id))
 
-        self.arena[x_coordinate, y_coordinate] = self.dodgems[-1].dodgem_id  # Set the randomly chosen arena coordinate to the ID of the newly created dodgem
+        self.arena[x_coordinate, y_coordinate] = self.dodgems[
+            -1].dodgem_id  # Set the randomly chosen arena coordinate to the ID of the newly created dodgem
 
     def _plot(self):
         pass
@@ -55,12 +56,11 @@ class Arena:
             if dodgem.alive:
                 self.arena[dodgem.current_location[0], dodgem.current_location[1]] = 0
 
-                #print(f"current location for dodgem {dodgem.dodgem_id}: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
+                # print(f"current location for dodgem {dodgem.dodgem_id}: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
 
                 dodgem.step()
 
-                #print(f"updated location for dodgem {dodgem.dodgem_id}: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
-
+                # print(f"updated location for dodgem {dodgem.dodgem_id}: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
 
                 # account for collision with wall
                 for i in [0, 1]:
@@ -69,16 +69,16 @@ class Arena:
                     elif dodgem.current_location[i] < 0:
                         dodgem.current_location[i] += 1
 
-                #print(f"updated location for dodgem {dodgem.dodgem_id} after collision check: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
+                # print(f"updated location for dodgem {dodgem.dodgem_id} after collision check: {dodgem.current_location[0]}, {dodgem.current_location[1]}")
 
-                #print(self.arena)
+                # print(self.arena)
                 self.arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
-            #print(self.arena)
-
+            # print(self.arena)
 
         # Assess for collisions
-        coordinate_list=[tuple(dodgem.current_location) for dodgem in self.dodgems]
+        coordinate_list = [tuple(dodgem.current_location) for dodgem in self.dodgems]
 
+        print(sorted(list_duplicates(coordinate_list)))
         for dup in sorted(list_duplicates(coordinate_list)):  # https://stackoverflow.com/a/5419576
             # there is a bug here where dead dodgems persist in dup, meaning that any dodgem that collides with a square where another dodgem died is destroyed
             for i in dup[1]:
@@ -87,6 +87,9 @@ class Arena:
                     self.arena[self.dodgems[i].current_location[0], self.dodgems[i].current_location[1]] = 0
 
             print(dup)
+
+        test_alive_dodgems_sync_with_arena_render(self.arena, self.dodgems)
+
         self._render()
         # Plot
 
@@ -95,9 +98,31 @@ class Arena:
             self.terminated = True
 
 
-def list_duplicates(seq): # https://stackoverflow.com/a/5419576
+def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
     tally = defaultdict(list)
-    for i,item in enumerate(seq):
+    for i, item in enumerate(seq):
         tally[item].append(i)
-    return ((key,locs) for key,locs in tally.items()
-                            if len(locs)>1)
+    return ((key, locs) for key, locs in tally.items()
+            if len(locs) > 1)
+
+
+def test_alive_dodgems_sync_with_arena_render(arena: np.array, dodgems_list: list[Dodgem]):
+    # I could use itertools or zip() here but I'm not confident enough
+    list_of_alive_dodgems_shown = []
+
+    for row in arena:
+        for number_displayed in row:
+            if number_displayed != 0:
+                list_of_alive_dodgems_shown.append(number_displayed)
+
+    assert len(list_of_alive_dodgems_shown) == len(
+        set(list_of_alive_dodgems_shown)), f"The render shows duplicate dodgems.\nList of dodgems shown: {list_of_alive_dodgems_shown}\nArena:\n{arena}"
+
+    list_of_alive_dodgems_from_classes = []
+
+    for dodgem in dodgems_list:
+        if dodgem.alive:
+            list_of_alive_dodgems_from_classes.append(dodgem.dodgem_id)
+
+    assert set(list_of_alive_dodgems_shown) == set(
+        list_of_alive_dodgems_from_classes), f"There appears to be a mismatch between the alive dodgems in the render, and the alive dodgems from the classes.\nAlive dodgems in render: {list_of_alive_dodgems_shown}\nAlive dodgems from classes: {list_of_alive_dodgems_from_classes}\nArena:\n{arena}"
