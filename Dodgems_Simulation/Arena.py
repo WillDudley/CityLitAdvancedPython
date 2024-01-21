@@ -20,6 +20,24 @@ class Arena:
 
         self._render()
 
+    def step(self):
+        # Move dodgems if they are alive
+        for dodgem in self.dodgems:
+            if dodgem.alive:
+
+                dodgem.step()
+
+        self._check_collision_between_dodgems()
+
+        if self.render:
+            test_alive_dodgems_sync_with_arena_render(self._render(), self.dodgems)
+
+        # Plot
+
+        # termination check
+        self.time_step += 1
+        self._check_terminal()
+
     def add_dodgem(self, dodgem_id, random_start=True):
         """
         Create a new dodgem, add it to the list of dodgems, and place it in a random square in the arena
@@ -83,24 +101,6 @@ class Arena:
             self.dodgems[index].decrement_hp()
             if not self.dodgems[index].alive:
                 self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
-
-    def step(self):
-        # Move dodgems if they are alive
-        for dodgem in self.dodgems:
-            if dodgem.alive:
-
-                dodgem.step()
-
-        self._check_collision_between_dodgems()
-
-        if self.render:
-            test_alive_dodgems_sync_with_arena_render(self._render(), self.dodgems)
-
-        # Plot
-
-        # termination check
-        self.time_step += 1
-        self._check_terminal()
 
 
 def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
