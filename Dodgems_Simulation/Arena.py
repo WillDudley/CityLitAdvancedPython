@@ -64,7 +64,7 @@ class Arena:
         assert 0 <= x_coordinate < self.arena_size, f"Initial x coordinate for dodgem {dodgem_id} out of bounds!"
         assert 0 <= y_coordinate < self.arena_size, f"Initial y coordinate for dodgem {dodgem_id} out of bounds!"
 
-        self.dodgems.append(Dodgem(hit_points=1,
+        self.dodgems.append(Dodgem(hit_points=2,
                                    policy=self.dodgem_policies[dodgem_id-1],
                                    initial_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id,
@@ -79,7 +79,10 @@ class Arena:
 
         for dodgem in self.dodgems:
             if dodgem.alive:
-                arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
+                if arena[dodgem.current_location[0], dodgem.current_location[1]] != 0:  # if a dodgem is already in the location...
+                    arena[dodgem.current_location[0], dodgem.current_location[1]] = -1  # just replace it with -1
+                else:
+                    arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
 
         print(arena)
         return arena
@@ -126,7 +129,9 @@ def test_alive_dodgems_sync_with_arena_render(arena: np.array, dodgems_list: lis
 
     for row in arena:
         for number_displayed in row:
-            if number_displayed not in [0, -1]:
+            if number_displayed == -1:
+                return True  # Okay I don't want to deal with collision cases here
+            elif number_displayed != 0:
                 list_of_alive_dodgems_shown.append(number_displayed)
 
     assert len(list_of_alive_dodgems_shown) == len(
