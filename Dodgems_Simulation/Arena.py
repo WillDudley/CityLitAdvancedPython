@@ -4,10 +4,11 @@ from collections import defaultdict
 
 
 class Arena:
-    def __init__(self, arena_size, n_dodgems, dodgem_policies, time_limit=10_000, render=True):
+    def __init__(self, arena_size, n_dodgems, dodgem_policies, dodgem_hitpoints, time_limit=10_000, render=True):
         self.arena_size = arena_size
         self.n_dodgems = n_dodgems
         self.dodgem_policies = dodgem_policies
+        self.dodgem_hitpoints = dodgem_hitpoints
         self.time_limit = time_limit
         self.render = render
 
@@ -64,7 +65,7 @@ class Arena:
         assert 0 <= x_coordinate < self.arena_size, f"Initial x coordinate for dodgem {dodgem_id} out of bounds!"
         assert 0 <= y_coordinate < self.arena_size, f"Initial y coordinate for dodgem {dodgem_id} out of bounds!"
 
-        self.dodgems.append(Dodgem(hit_points=2,
+        self.dodgems.append(Dodgem(hit_points=self.dodgem_hitpoints[dodgem_id-1],
                                    policy=self.dodgem_policies[dodgem_id-1],
                                    initial_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id,
