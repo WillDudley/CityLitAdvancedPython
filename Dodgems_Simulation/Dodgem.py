@@ -11,10 +11,14 @@ class Dodgem:
         self.dodgem_id = dodgem_id
 
     def step(self):
-        if self.alive:
-            self.current_location += np.array([1, 1])
-        else:
+        self.current_location += np.array([1, 1])
+
+    def decrement_hp(self):
+        self.hit_points -= 1
+        if self.hit_points <= 0:
+            self.alive = False
             self.current_location = None
+            print(f"Dodgem {self.dodgem_id} destroyed!")
 
     def _check_collision(self):
         pass

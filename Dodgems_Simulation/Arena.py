@@ -39,7 +39,7 @@ class Arena:
                     dodgem_unassigned = False
         else:
             x_coordinate = -dodgem_id % self.arena_size
-            y_coordinate = dodgem_id# % self.arena_size
+            y_coordinate = dodgem_id  # % self.arena_size
 
         assert 0 <= x_coordinate < self.arena_size, f"Initial x coordinate for dodgem {dodgem_id} out of bounds!"
         assert 0 <= y_coordinate < self.arena_size, f"Initial y coordinate for dodgem {dodgem_id} out of bounds!"
@@ -80,19 +80,16 @@ class Arena:
                 # replace new position with dodgem_id - crash logic is handled later
                 self.arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
 
-        # Assess for collisions
+        # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
         coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
         print([d.alive for d in self.dodgems])
         print(f"Coordinate list: {coordinate_list}")
 
-        print(sorted(list_duplicates(coordinate_list)))
-        for dup in sorted(list_duplicates(coordinate_list)):  # https://stackoverflow.com/a/5419576
-            for i in dup[1]:
-                if self.dodgems[i].alive:
-                    self.dodgems[i].alive = False
-                    self.arena[self.dodgems[i].current_location[0], self.dodgems[i].current_location[1]] = 0
-
-            print(dup)
+        print(f"list of duplicates: {list_duplicates(coordinate_list)}")
+        for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
+            # If the dodgem is where another dodgem is, replace the location by "-1" and damage it
+            self.dodgems[index].decrement_hp()
+            self.arena[collision_coord[0], collision_coord[1]] = -1
 
         test_alive_dodgems_sync_with_arena_render(self.arena, self.dodgems)
 
@@ -105,11 +102,20 @@ class Arena:
 
 
 def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
-    tally = defaultdict(list)
-    for i, item in enumerate(seq):
-        tally[item].append(i)
-    return ((key, locs) for key, locs in tally.items()
-            if len(locs) > 1)
+    """
+
+    :param seq: list of coordinates
+    :return: list of duplicates in the format [(index, duplicate_element), ...]
+    """
+    duplicates = []
+    for i in list(range(len(seq))):
+        if seq[i] is None:
+            continue  # ignore dead dodgems
+        for j in list(range(len(seq))):
+            if i != j:
+                if seq[i] == seq[j]:
+                    duplicates.append((i, seq[i]))
+    return duplicates
 
 
 def test_alive_dodgems_sync_with_arena_render(arena: np.array, dodgems_list: list[Dodgem]):
@@ -118,7 +124,7 @@ def test_alive_dodgems_sync_with_arena_render(arena: np.array, dodgems_list: lis
 
     for row in arena:
         for number_displayed in row:
-            if number_displayed != 0:
+            if number_displayed not in [0, -1]:
                 list_of_alive_dodgems_shown.append(number_displayed)
 
     assert len(list_of_alive_dodgems_shown) == len(
