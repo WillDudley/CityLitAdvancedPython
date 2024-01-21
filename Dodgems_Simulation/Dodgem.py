@@ -62,6 +62,7 @@ class Dodgem:
         return closest_dodgem
 
     def _calculate_vector_towards_dodgem(self, dodgem, pursuit=False):
+        # I'm not dealing with norms here, it's too complicated
         vector = dodgem.current_location - self.current_location
         if pursuit: # pursuiters don't move as fast as possible to avoid overshooting
             for i in [0, 1]:
