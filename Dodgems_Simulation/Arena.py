@@ -21,7 +21,8 @@ class Arena:
         for i in list(range(n_dodgems)):
             self.add_dodgem(i + 1)
 
-        self._render()
+        if self.render:
+            self._render()
 
     def step(self):
         # Move dodgems if they are alive

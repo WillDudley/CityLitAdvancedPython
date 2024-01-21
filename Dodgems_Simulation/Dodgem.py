@@ -17,14 +17,14 @@ class Dodgem:
 
     def step(self, all_dodgems):
         if self.policy == "SE":
-            normed_action = np.array([1, 1]) / np.sqrt(2)
+            normed_action = np.array([self.speed, self.speed])
 
         elif self.policy == "Random":
-            normed_action = np.random.randint(low=-1, high=2, size=2) / np.sqrt(2)
+            normed_action = np.random.randint(low=-self.speed, high=self.speed+1, size=2)
 
         elif self.policy == "Pursuit":
             dodgem_id_to_pursue = self._calculate_closest_dodgem(all_dodgems)
-            normed_action = self._calculate_vector_towards_dodgem(dodgem_id_to_pursue)
+            normed_action = self._calculate_vector_towards_dodgem(dodgem_id_to_pursue, pursuit=True)
 
         elif self.policy == "Escape":
             dodgem_id_to_pursue = self._calculate_closest_dodgem(all_dodgems)
@@ -32,9 +32,7 @@ class Dodgem:
         else:
             raise ValueError(f"Dodgem {self.dodgem_id}'s policy of '{self.policy}' not recognised!")
 
-        self.next_location += np.rint((normed_action * self.speed) / np.sqrt(2)).astype(np.int32)
-
-        print(f"Dodgem {self.dodgem_id} took action {np.rint((normed_action * self.speed) / np.sqrt(2)).astype(np.int32)}")
+        self.next_location += normed_action
 
         # account for collision with wall
         for i in [0, 1]:
@@ -63,10 +61,18 @@ class Dodgem:
                     closest_dodgem = dodgem
         return closest_dodgem
 
-    def _calculate_vector_towards_dodgem(self, dodgem):
-        relative_vector = dodgem.current_location - self.current_location
-        if relative_vector.any():
-            normed_vector = relative_vector / np.linalg.norm(relative_vector)
-        else:
-            normed_vector = relative_vector
-        return normed_vector
+    def _calculate_vector_towards_dodgem(self, dodgem, pursuit=False):
+        vector = dodgem.current_location - self.current_location
+        if pursuit: # pursuiters don't move as fast as possible to avoid overshooting
+            for i in [0, 1]:
+                if vector[i] > self.speed:
+                    vector[i] = self.speed
+        else:  # escapists move as fast as possible
+            for i in [0, 1]:
+                if vector[i] > 0:
+                    vector[i] = self.speed
+                elif vector[i] < 0:
+                    vector[i] = -self.speed
+                else:
+                    vector[i] = 0
+        return vector
