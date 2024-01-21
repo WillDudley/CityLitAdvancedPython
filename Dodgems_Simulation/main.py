@@ -1,8 +1,8 @@
 from Arena import Arena
 
-arena_size = 3
-dodgem_policies = ["Random", "Random"]
-dodgem_hitpoints = [4, 2]
+arena_size = 7
+dodgem_policies = ["Random", "Random", "Pursuit", "Escape"]
+dodgem_hitpoints = [4, 2, 4, 4]
 
 assert len(dodgem_policies) == len(dodgem_hitpoints), "There has to be the same number of elements in both `dodgem_policies` and `dodgem_hitpoints`!"
 

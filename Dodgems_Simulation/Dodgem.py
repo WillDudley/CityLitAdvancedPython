@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 
@@ -13,15 +15,24 @@ class Dodgem:
 
     def step(self, all_dodgems):
         if self.policy == "SE":
-            self.next_location += np.array([1, 1])
+            action = np.array([1, 1])
+
         elif self.policy == "Random":
-            self.next_location += np.random.randint(low=-1, high=1, size=2)
+            action = np.random.randint(low=-1, high=2, size=2)
+
         elif self.policy == "Pursuit":
-            pass
+            dodgem_id_to_pursue = self._calculate_closest_dodgem(all_dodgems)
+            action = self._calculate_vector_towards_dodgem(dodgem_id_to_pursue)
+
         elif self.policy == "Escape":
-            pass
+            dodgem_id_to_pursue = self._calculate_closest_dodgem(all_dodgems)
+            action = -self._calculate_vector_towards_dodgem(dodgem_id_to_pursue)
         else:
             raise ValueError(f"Dodgem {self.dodgem_id}'s policy of '{self.policy}' not recognised!")
+
+        self.next_location += action
+
+        print(f"Dodgem {self.dodgem_id} took action {action}")
 
         # account for collision with wall
         for i in [0, 1]:
@@ -30,7 +41,7 @@ class Dodgem:
             elif self.next_location[i] < 0:
                 self.next_location[i] += 1
 
-        self.current_location = self.next_location
+        self.current_location = copy.copy(self.next_location)
 
     def decrement_hp(self):
         self.hit_points -= 1
@@ -39,3 +50,21 @@ class Dodgem:
             self.alive = False
             self.current_location = None
             print(f"Dodgem {self.dodgem_id} destroyed!")
+
+    def _calculate_closest_dodgem(self, all_dodgems):
+        current_max_dist = np.inf
+        for dodgem in all_dodgems:
+            if dodgem.alive and dodgem.dodgem_id != self.dodgem_id:
+                distance = np.linalg.norm(self.current_location - dodgem.current_location)
+                if distance < current_max_dist:
+                    current_max_dist = distance
+                    closest_dodgem = dodgem
+        return closest_dodgem
+
+    def _calculate_vector_towards_dodgem(self, dodgem):
+        relative_vector = dodgem.current_location - self.current_location
+        if relative_vector.any():
+            normed_vector = relative_vector / np.linalg.norm(relative_vector) * 1
+        else:
+            normed_vector = relative_vector
+        return np.rint(normed_vector).astype(np.int32)
