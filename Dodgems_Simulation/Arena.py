@@ -13,6 +13,7 @@ class Arena:
         self.dodgems = []  # Create empty list that will hold the dodgems objects
         self.terminated = False
         self.time_step = 0
+        self.alive_dodgems = []
 
         for i in list(range(n_dodgems)):
             self.add_dodgem(i + 1, False)
@@ -49,6 +50,7 @@ class Arena:
                                    pursuit_strategy=None,
                                    current_location=np.array([x_coordinate, y_coordinate]),
                                    dodgem_id=dodgem_id))
+        self.alive_dodgems.append(dodgem_id)
 
         self.arena[x_coordinate, y_coordinate] = self.dodgems[
             -1].dodgem_id  # Set the randomly chosen arena coordinate to the ID of the newly created dodgem
@@ -82,13 +84,12 @@ class Arena:
 
         # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
         coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
-        print([d.alive for d in self.dodgems])
-        print(f"Coordinate list: {coordinate_list}")
 
-        print(f"list of duplicates: {list_duplicates(coordinate_list)}")
         for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
             # If the dodgem is where another dodgem is, replace the location by "-1" and damage it
             self.dodgems[index].decrement_hp()
+            if not self.dodgems[index].alive:
+                self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
             self.arena[collision_coord[0], collision_coord[1]] = -1
 
         test_alive_dodgems_sync_with_arena_render(self.arena, self.dodgems)
@@ -96,9 +97,17 @@ class Arena:
         self._render()
         # Plot
 
+        # termination check
         self.time_step += 1
-        if self.time_step >= self.time_limit:
+        self.check_terminal()
+
+    def check_terminal(self):
+        if len(self.alive_dodgems) <= 1:
             self.terminated = True
+            print(f"Simulation terminated as there are {len(self.alive_dodgems)} remaining!")
+        elif self.time_step >= self.time_limit:
+            self.terminated = True
+            print(f"Simulation terminated as the time exceeded the limit of {self.time_limit} steps!")
 
 
 def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
