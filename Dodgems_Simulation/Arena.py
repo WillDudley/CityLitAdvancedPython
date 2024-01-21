@@ -82,7 +82,6 @@ class Arena:
             # If the dodgem is where another dodgem is, damage it
             self.dodgems[index].decrement_hp()
             if not self.dodgems[index].alive:
-                print(coordinate_list, self.dodgems[index].dodgem_id, self.alive_dodgems)
                 self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
 
     def step(self):
