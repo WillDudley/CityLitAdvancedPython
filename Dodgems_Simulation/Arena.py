@@ -65,6 +65,25 @@ class Arena:
         print(arena)
         return arena
 
+    def _check_terminal(self):
+        if len(self.alive_dodgems) <= 1:
+            self.terminated = True
+            print(f"Simulation terminated as there are {len(self.alive_dodgems)} dodgem(s) remaining!")
+        elif self.time_step >= self.time_limit:
+            self.terminated = True
+            print(f"Simulation terminated as the time exceeded the limit of {self.time_limit} steps!")
+
+    def _check_collision_between_dodgems(self):
+        # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
+        coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
+
+        for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
+            # If the dodgem is where another dodgem is, damage it
+            self.dodgems[index].decrement_hp()
+            if not self.dodgems[index].alive:
+                print(coordinate_list, self.dodgems[index].dodgem_id, self.alive_dodgems)
+                self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
+
     def step(self):
         # Move dodgems if they are alive
         for dodgem in self.dodgems:
@@ -79,15 +98,7 @@ class Arena:
                     elif dodgem.current_location[i] < 0:
                         dodgem.current_location[i] += 1
 
-        # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
-        coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
-
-        for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
-            # If the dodgem is where another dodgem is, damage it
-            self.dodgems[index].decrement_hp()
-            if not self.dodgems[index].alive:
-                print(coordinate_list, self.dodgems[index].dodgem_id, self.alive_dodgems)
-                self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
+        self._check_collision_between_dodgems()
 
         if self.render:
             test_alive_dodgems_sync_with_arena_render(self._render(), self.dodgems)
@@ -96,15 +107,7 @@ class Arena:
 
         # termination check
         self.time_step += 1
-        self.check_terminal()
-
-    def check_terminal(self):
-        if len(self.alive_dodgems) <= 1:
-            self.terminated = True
-            print(f"Simulation terminated as there are {len(self.alive_dodgems)} dodgem(s) remaining!")
-        elif self.time_step >= self.time_limit:
-            self.terminated = True
-            print(f"Simulation terminated as the time exceeded the limit of {self.time_limit} steps!")
+        self._check_terminal()
 
 
 def list_duplicates(seq):  # https://stackoverflow.com/a/5419576
