@@ -49,7 +49,8 @@ class Arena:
                                    speed=1,
                                    pursuit_strategy=None,
                                    current_location=np.array([x_coordinate, y_coordinate]),
-                                   dodgem_id=dodgem_id))
+                                   dodgem_id=dodgem_id,
+                                   arena_size=self.arena_size))
         self.alive_dodgems.append(dodgem_id)
 
     def _plot(self):
@@ -90,13 +91,6 @@ class Arena:
             if dodgem.alive:
 
                 dodgem.step()
-
-                # account for collision with wall
-                for i in [0, 1]:
-                    if dodgem.current_location[i] >= self.arena_size:
-                        dodgem.current_location[i] -= 1
-                    elif dodgem.current_location[i] < 0:
-                        dodgem.current_location[i] += 1
 
         self._check_collision_between_dodgems()
 
