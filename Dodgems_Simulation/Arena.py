@@ -17,6 +17,7 @@ class Arena:
         self.terminated = False
         self.time_step = 0
         self.alive_dodgems = []
+        self.n_alive = [self.n_dodgems]
 
         for i in list(range(n_dodgems)):
             self.add_dodgem(i + 1)
@@ -36,7 +37,8 @@ class Arena:
         if self.render:
             test_alive_dodgems_sync_with_arena_render(self._render(), self.dodgems)
 
-        # Plot
+        # data for plotting
+        self.n_alive.append(len(self.alive_dodgems))
 
         # termination check
         self.time_step += 1
@@ -74,9 +76,6 @@ class Arena:
                                    dodgem_id=dodgem_id,
                                    arena_size=self.arena_size))
         self.alive_dodgems.append(dodgem_id)
-
-    def _plot(self):
-        pass
 
     def _render(self):
         arena = np.zeros((self.arena_size, self.arena_size))
