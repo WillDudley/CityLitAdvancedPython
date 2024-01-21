@@ -4,19 +4,19 @@ from collections import defaultdict
 
 
 class Arena:
-    def __init__(self, arena_size, n_dodgems, time_limit):
+    def __init__(self, arena_size, n_dodgems, time_limit=10_000, render=True):
         self.arena_size = arena_size
         self.n_dodgems = n_dodgems
         self.time_limit = time_limit
+        self.render = render
 
-        self.arena = np.zeros((arena_size, arena_size))  # Create the arena
         self.dodgems = []  # Create empty list that will hold the dodgems objects
         self.terminated = False
         self.time_step = 0
         self.alive_dodgems = []
 
         for i in list(range(n_dodgems)):
-            self.add_dodgem(i + 1, False)
+            self.add_dodgem(i + 1)
 
         self._render()
 
@@ -52,23 +52,23 @@ class Arena:
                                    dodgem_id=dodgem_id))
         self.alive_dodgems.append(dodgem_id)
 
-        self.arena[x_coordinate, y_coordinate] = self.dodgems[
-            -1].dodgem_id  # Set the randomly chosen arena coordinate to the ID of the newly created dodgem
-
     def _plot(self):
         pass
 
     def _render(self):
-        print(self.arena)
+        arena = np.zeros((self.arena_size, self.arena_size))
+
+        for dodgem in self.dodgems:
+            if dodgem.alive:
+                arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
+
+        print(arena)
+        return arena
 
     def step(self):
         # Move dodgems if they are alive
         for dodgem in self.dodgems:
             if dodgem.alive:
-
-                # replace old position with 0 UNLESS a new dodgem has already entered the space
-                if self.arena[dodgem.current_location[0], dodgem.current_location[1]] == dodgem.dodgem_id:
-                    self.arena[dodgem.current_location[0], dodgem.current_location[1]] = 0
 
                 dodgem.step()
 
@@ -79,22 +79,19 @@ class Arena:
                     elif dodgem.current_location[i] < 0:
                         dodgem.current_location[i] += 1
 
-                # replace new position with dodgem_id - crash logic is handled later
-                self.arena[dodgem.current_location[0], dodgem.current_location[1]] = dodgem.dodgem_id
-
         # Assess for collisions by looking at the coordinates of all alive dodgems, checking for overlaps
         coordinate_list = [tuple(dodgem.current_location) if dodgem.alive else None for dodgem in self.dodgems]
 
         for index, collision_coord in list_duplicates(coordinate_list):  # https://stackoverflow.com/a/5419576
-            # If the dodgem is where another dodgem is, replace the location by "-1" and damage it
+            # If the dodgem is where another dodgem is, damage it
             self.dodgems[index].decrement_hp()
             if not self.dodgems[index].alive:
+                print(coordinate_list, self.dodgems[index].dodgem_id, self.alive_dodgems)
                 self.alive_dodgems.remove(self.dodgems[index].dodgem_id)
-            self.arena[collision_coord[0], collision_coord[1]] = -1
 
-        test_alive_dodgems_sync_with_arena_render(self.arena, self.dodgems)
+        if self.render:
+            test_alive_dodgems_sync_with_arena_render(self._render(), self.dodgems)
 
-        self._render()
         # Plot
 
         # termination check
@@ -104,7 +101,7 @@ class Arena:
     def check_terminal(self):
         if len(self.alive_dodgems) <= 1:
             self.terminated = True
-            print(f"Simulation terminated as there are {len(self.alive_dodgems)} remaining!")
+            print(f"Simulation terminated as there are {len(self.alive_dodgems)} dodgem(s) remaining!")
         elif self.time_step >= self.time_limit:
             self.terminated = True
             print(f"Simulation terminated as the time exceeded the limit of {self.time_limit} steps!")

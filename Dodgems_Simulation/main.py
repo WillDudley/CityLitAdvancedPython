@@ -1,6 +1,6 @@
 from Arena import Arena
 
-arena = Arena(arena_size=5, n_dodgems=3, time_limit=4)
+arena = Arena(arena_size=10, n_dodgems=5, time_limit=1000)
 
 while not arena.terminated:
     arena.step()
