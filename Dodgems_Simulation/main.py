@@ -1,7 +1,7 @@
 from Arena import Arena
 
 arena_size = 5
-dodgem_policies = ["Random", "Random", "Random"]
+dodgem_policies = ["Random", "SE", "Random"]
 
 arena = Arena(arena_size=5, n_dodgems=len(dodgem_policies), dodgem_policies=dodgem_policies, time_limit=1000)
 
